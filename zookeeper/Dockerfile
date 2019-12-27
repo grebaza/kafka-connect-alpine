@@ -12,34 +12,34 @@ ENV ZK_URL_PATH=zookeeper/zookeeper-$ZK_VERSION/apache-zookeeper-$ZK_VERSION-bin
 #
 USER root
 RUN set -eux; \
-	\
-	apk add --no-cache iproute2 curl bash; \
-	adduser --uid 1001 -D -s /sbin/nologin zookeeper --home $ZK_HOME
+      \
+    apk add --no-cache iproute2 curl bash; \
+    adduser --uid 1001 -D -s /sbin/nologin zookeeper --home $ZK_HOME
 
 #
 # Change ownership and switch user
 #
 RUN set -eux; \
-	\
-	chown -R zookeeper $ZK_HOME; \
-	chgrp -R zookeeper $ZK_HOME
+    \
+    chown -R zookeeper $ZK_HOME; \
+    chgrp -R zookeeper $ZK_HOME
 
 USER zookeeper
 
 RUN set -eux; \
-	\
-	mkdir $ZK_HOME/data; \
-	mkdir $ZK_HOME/txns; \
-	mkdir $ZK_HOME/logs; \
+      \
+    mkdir $ZK_HOME/data; \
+    mkdir $ZK_HOME/txns; \
+    mkdir $ZK_HOME/logs; \
 # Download and install Zookeeper
-	curl -fSL -o /tmp/zookeeper.tar.gz https://archive.apache.org/dist/$ZK_URL_PATH; \
+    curl -fSL -o /tmp/zookeeper.tar.gz https://archive.apache.org/dist/$ZK_URL_PATH; \
 # Verify the contents and then install ...
-	tar -xzf /tmp/zookeeper.tar.gz -C $ZK_HOME --strip-components 1; \
-	rm -f /tmp/zookeeper.tar.gz; \
+    tar -xzf /tmp/zookeeper.tar.gz -C $ZK_HOME --strip-components 1; \
+    rm -f /tmp/zookeeper.tar.gz; \
 # Remove unnecessary files
-	rm -rf $ZK_HOME/docs; \
+    rm -rf $ZK_HOME/docs; \
 # Allow random UID to use Zookeeper
-	chmod -R g+w,o+w $ZK_HOME 
+    chmod -R g+w,o+w $ZK_HOME
 
 # Set the working directory to the Zookeeper home directory
 WORKDIR $ZK_HOME
@@ -49,15 +49,15 @@ WORKDIR $ZK_HOME
 #
 COPY ./zoo.cfg $ZK_HOME/conf/zoo.cfg
 RUN set -eux; \
-	\
-	sed -i -r -e "s|(\\$\\{zookeeper.log.dir\\})|$ZK_HOME/logs|g" \
+    \
+    sed -i -r -e "s|(\\$\\{zookeeper.log.dir\\})|$ZK_HOME/logs|g" \
               -e "s|(\\$\\{zookeeper.tracelog.dir\\})|$ZK_HOME/logs|g" \
               -e "s|(\\$\\{zookeeper.log.file\\})|zookeeper.log|g" \
               -e "s|(\\$\\{zookeeper.tracelog.file\\})|zookeeper_trace.log|g" \
               -e "s|(\[myid\:\%X\{myid\}\]\s?)||g" \
               -e 's|#(log4j.appender.ROLLINGFILE.MaxBackupIndex.*)|\1|g' \
               $ZK_HOME/conf/log4j.properties; \
-	mkdir $ZK_HOME/conf.orig && mv $ZK_HOME/conf/* $ZK_HOME/conf.orig
+  mkdir $ZK_HOME/conf.orig && mv $ZK_HOME/conf/* $ZK_HOME/conf.orig
 
 #
 # Expose the ports and set up volumes for the data, transaction log, and configuration
