@@ -1,4 +1,4 @@
-FROM azul/zulu-openjdk-alpine:11.0.5
+FROM azul/zulu-openjdk-alpine:11.0.5-jre
 
 #
 # Set the version, home directory
@@ -57,7 +57,7 @@ RUN set -eux; \
               -e "s|(\[myid\:\%X\{myid\}\]\s?)||g" \
               -e 's|#(log4j.appender.ROLLINGFILE.MaxBackupIndex.*)|\1|g' \
               $ZK_HOME/conf/log4j.properties; \
-  mkdir $ZK_HOME/conf.orig && mv $ZK_HOME/conf/* $ZK_HOME/conf.orig
+    mkdir $ZK_HOME/conf.orig && mv $ZK_HOME/conf/* $ZK_HOME/conf.orig
 
 #
 # Expose the ports and set up volumes for the data, transaction log, and configuration

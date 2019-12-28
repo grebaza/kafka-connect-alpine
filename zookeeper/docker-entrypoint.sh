@@ -28,7 +28,7 @@ case $ARG1 in
         #
         # Process the logging-related environment variables. Zookeeper's log configuration allows *some* variables to be
         # set via environment variables, and more via system properties (e.g., "-Dzookeeper.console.threshold=INFO").
-        # However, in the interest of keeping things straightforward and in the spirit of the immutable image, 
+        # However, in the interest of keeping things straightforward and in the spirit of the immutable image,
         # we don't use these and instead directly modify the Log4J configuration file (replacing the variables).
         #
         if [[ -z "$LOG_LEVEL" ]]; then
