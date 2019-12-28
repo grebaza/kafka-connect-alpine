@@ -1,0 +1,18 @@
+{
+  "name": "jdbc-sink",
+    "config": {
+      "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+      "tasks.max": "1",
+      "transforms": "unwrap, route",
+      "topics.regex":"^culqi\\.culqidb\\.(?!tmp[_-])(?!tabla_listado_ventas_comercio)(?!peticion_transaccion$)[a-z0-9_-]\\w*$",
+      "transforms.unwrap.type": "io.debezium.transforms.UnwrapFromEnvelope",
+      "transforms.route.type": "org.apache.kafka.connect.transforms.RegexRouter",
+      "transforms.route.regex": "([^.]+)\\.([^.]+)\\.([^.]+)",
+      "transforms.route.replacement": "$3",
+      "connection.url": "jdbc:postgresql://postgres:5432/culqidb?currentSchema=replica_production&user=cdc_user&password=pw-f453",
+      "auto.create": "true",
+      "auto.evolve":"true",
+      "insert.mode": "upsert",
+      "pk.mode": "record_key"
+    }
+}
