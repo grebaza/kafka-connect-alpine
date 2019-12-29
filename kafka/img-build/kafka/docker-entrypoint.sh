@@ -127,82 +127,100 @@ cp -r "$KAFKA_HOME"/config.orig/* "$KAFKA_HOME"/config
 # Process the argument to this container ...
 case $1 in
     start)
-      #
-      # Configure the log files ...
-      if [[ -z "$LOG_LEVEL" ]]; then
-          LOG_LEVEL="INFO"
-      fi
-      sed -i -r -e "s|=INFO, stdout|=$LOG_LEVEL, stdout|g" \
-        "$KAFKA_HOME"/config/log4j.properties
-      sed -i -r -e \
-        "s|^(log4j.appender.stdout.threshold)=.*|\1=${LOG_LEVEL}|g" \
-        "$KAFKA_HOME"/config/log4j.properties
-      env "KAFKA_LOG4J_OPTS=-Dlog4j.configuration= \
-        file:$KAFKA_HOME/config/log4j.properties" bash
-      unset LOG_LEVEL
+        #
+        # Configure the log files ...
+        if [[ -z "$LOG_LEVEL" ]]; then
+            LOG_LEVEL="INFO"
+        fi
+        sed -i -r -e "s|=INFO, stdout|=$LOG_LEVEL, stdout|g" \
+          "$KAFKA_HOME"/config/log4j.properties
+        sed -i -r -e \
+          "s|^(log4j.appender.stdout.threshold)=.*|\1=${LOG_LEVEL}|g" \
+          "$KAFKA_HOME"/config/log4j.properties
+        env "KAFKA_LOG4J_OPTS=-Dlog4j.configuration= \
+          file:$KAFKA_HOME/config/log4j.properties" bash
+        unset LOG_LEVEL
 
-      # Add missing EOF at the end of the config file
-      echo "" >> "$KAFKA_HOME"/config/server.properties
+        # Add missing EOF at the end of the config file
+        echo "" >> "$KAFKA_HOME"/config/server.properties
 
-      #
-      # Process all environment variables that start with 'KAFKA_' (but not
-      # 'KAFKA_HOME' or 'KAFKA_VERSION'):
-      #
-      for VAR in $(env); do
-          env_var=$(echo "$VAR" | sed -r "s/(.*)=.*/\1/g")
-          if [[ $env_var =~ ^KAFKA_ \
-            && $env_var != "KAFKA_VERSION" \
-            && $env_var != "KAFKA_HOME"  \
-            && $env_var != "KAFKA_LOG4J_OPTS" \
-            && $env_var != "KAFKA_JMX_OPTS" ]]; then
-            prop_name=$(echo "$VAR" \
-              | sed -r "s/^KAFKA_(.*)=.*/\1/g" \
-              | tr '[:upper:]' '[:lower:]' \
-              | tr _ .)
-            if grep -qE "(^|^#)$prop_name=" \
-              "$KAFKA_HOME"/config/server.properties; then
-                #note that no config names or values may contain an '@' char
-                sed -r -i "s@(^|^#)($prop_name)=(.*)@\2=${!env_var}@g" \
-                  "$KAFKA_HOME"/config/server.properties
-            else
-                #echo "Adding property $prop_name=${!env_var}"
-                echo "$prop_name=${!env_var}" \
-                  >> "$KAFKA_HOME"/config/server.properties
-            fi
-          fi
-      done
-
-      if [[ -n $CREATE_TOPICS ]]; then
-        echo "Creating topics: $CREATE_TOPICS"
-        # Start a subshell in the background that waits for the Kafka broker
-        # to open socket on port 9092 and then creates the topics when the
-        # broker is running and able to receive connections ...
         (
-            echo "STARTUP: Waiting for Kafka broker to open socket on port 9092 ..."
-            while ss -n | awk '$5 ~ /:9092$/ {exit 1}'; do sleep 1; done
-            echo "START: Found running Kafka broker on port 9092, so creating topics ..."
-            IFS=','; for topicToCreate in $CREATE_TOPICS; do
-                # remove leading and trailing whitespace ...
-                topicToCreate=$(echo "${topicToCreate}" | xargs )
-                IFS=':' read -ar topicConfig <<< "$topicToCreate"
-                config=
-                if [ -n "${topicConfig[3]}" ]; then
-                    config="--config=cleanup.policy=${topicConfig[3]}"
+            function updateConfig(){
+                key=$1
+                value=$2
+                file=$3
+
+                # Omit $value here, in case there is sensitive information
+                echo "[Configuring] '$key' in '$file'"
+
+                # If config exists in file, replace it. Otherwise,
+                # append to file.
+                if grep -E -q "^#?$key=" "$file"; then
+                    # note that no config values may contain an '@' char
+                    sed -r -i "s@^#?$key=.*@$key=$value@g" "$file"
+                else
+                    echo "$key=$value" >> "$file"
                 fi
-                echo "STARTUP: Creating topic ${topicConfig[0]} with \
-                  ${topicConfig[1]} partitions and ${topicConfig[2]} \
-                  replicas with cleanup policy ${topicConfig[3]}..."
-                "$KAFKA_HOME"/bin/kafka-topics.sh --create \
-                  --zookeeper "$KAFKA_ZOOKEEPER_CONNECT" \
-                  --replication-factor "${topicConfig[2]}" \
-                  --partitions "${topicConfig[1]}" \
-                  --topic "${topicConfig[0]}" "${config}"
+            }
+
+            # Process all environment variables that start with 'KAFKA_'
+            # (but not 'KAFKA_HOME' or 'KAFKA_VERSION'):
+            for VAR in $(env); do
+                env_var=$(echo "$VAR" | sed -r "s/(.*)=.*/\1/g")
+                if [[ $env_var =~ ^KAFKA_ \
+                  && $env_var != "KAFKA_VERSION" \
+                  && $env_var != "KAFKA_HOME"  \
+                  && $env_var != "KAFKA_LOG4J_OPTS" \
+                  && $env_var != "KAFKA_JMX_OPTS" ]]; then
+                  prop_name=$(echo "$VAR" \
+                    | sed -r "s/^KAFKA_(.*)=.*/\1/g" \
+                    | tr '[:upper:]' '[:lower:]' \
+                    | tr _ .)
+                  if grep -qE "(^|^#)$prop_name=" \
+                    "$KAFKA_HOME"/config/server.properties; then
+                      #note that no config names or values may contain an '@' char
+                      sed -r -i "s@(^|^#)($prop_name)=(.*)@\2=${!env_var}@g" \
+                        "$KAFKA_HOME"/config/server.properties
+                  else
+                      #echo "Adding property $prop_name=${!env_var}"
+                      echo "$prop_name=${!env_var}" \
+                        >> "$KAFKA_HOME"/config/server.properties
+                  fi
+                fi
             done
-        )&
-      fi
-      exec "$KAFKA_HOME"/bin/kafka-server-start.sh \
-        "$KAFKA_HOME"/config/server.properties
-      ;;
+        )
+
+        if [[ -n $CREATE_TOPICS ]]; then
+          echo "Creating topics: $CREATE_TOPICS"
+          # Start a subshell in the background that waits for the Kafka broker
+          # to open socket on port 9092 and then creates the topics when the
+          # broker is running and able to receive connections ...
+          (
+              echo "STARTUP: Waiting for Kafka broker to open socket on port 9092 ..."
+              while ss -n | awk '$5 ~ /:9092$/ {exit 1}'; do sleep 1; done
+              echo "START: Found running Kafka broker on port 9092, so creating topics ..."
+              IFS=','; for topicToCreate in $CREATE_TOPICS; do
+                  # remove leading and trailing whitespace ...
+                  topicToCreate=$(echo "${topicToCreate}" | xargs )
+                  IFS=':' read -ar topicConfig <<< "$topicToCreate"
+                  config=
+                  if [ -n "${topicConfig[3]}" ]; then
+                      config="--config=cleanup.policy=${topicConfig[3]}"
+                  fi
+                  echo "STARTUP: Creating topic ${topicConfig[0]} with \
+                    ${topicConfig[1]} partitions and ${topicConfig[2]} \
+                    replicas with cleanup policy ${topicConfig[3]}..."
+                  "$KAFKA_HOME"/bin/kafka-topics.sh --create \
+                    --zookeeper "$KAFKA_ZOOKEEPER_CONNECT" \
+                    --replication-factor "${topicConfig[2]}" \
+                    --partitions "${topicConfig[1]}" \
+                    --topic "${topicConfig[0]}" "${config}"
+              done
+          )&
+        fi
+        exec "$KAFKA_HOME"/bin/kafka-server-start.sh \
+          "$KAFKA_HOME"/config/server.properties
+        ;;
     watch-topic)
         shift
         FROM_BEGINNING=""

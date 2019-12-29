@@ -1,4 +1,4 @@
-FROM apando/connect-base:0.1
+FROM krealo/connectbase-alpine-zulu:0.6
 
 ENV DEBEZIUM_VERSION="1.0.0.Final" \
     MAVEN_REPO_CENTRAL="" \

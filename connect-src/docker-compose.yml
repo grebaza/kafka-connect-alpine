@@ -7,9 +7,9 @@ version: '2'
 
 services:
   connect:
-   #  image: debezium/connect:1.0
-    build:
-      context: ./img-build/connect
+    image: krealo/connect-alpine-zulu:0.6
+    # build:
+    #   context: ./img-build/connect
     ports:
       - 8083:8083
       - 5005:5005

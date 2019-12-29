@@ -1,9 +1,5 @@
 FROM azul/zulu-openjdk-alpine:11.0.5-jre
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
-ENV JAVA_HOME=/usr
-#
+
 # Set the version, home directory, and MD5 hash.
 # MD5 hash taken from http://kafka.apache.org/downloads.html for this version of Kafka
 #
@@ -19,56 +15,45 @@ USER root
 
 RUN set -eux; \
     \
-    apk add --no-cache --upgrade iproute2 curl bash vim; \
+    apk add --no-cache --upgrade iproute2 curl bash; \
     adduser --uid 1001 -D -s /sbin/nologin kafka --home $KAFKA_HOME; \
     mkdir $KAFKA_HOME/data; \
-    mkdir $KAFKA_HOME/logs
-#
+    mkdir $KAFKA_HOME/logs; \
+    \
 # Change ownership and switch user
-#
-RUN chown -R kafka: $KAFKA_HOME; \
+    chown -R kafka: $KAFKA_HOME; \
     chgrp -R kafka $KAFKA_HOME
 
-#
 # Download Kafka
 #
-RUN curl -fSL -o /tmp/kafka.tgz \
+RUN set -eux; \
+    \
+    curl -fSL -o /tmp/kafka.tgz \
       $(curl --stderr /dev/null \
           https://www.apache.org/dyn/closer.cgi\?as_json\=1 \
           | sed -rn 's/.*"preferred":.*"(.*)"/\1/p' \
        )$KAFKA_URL_PATH \
       || curl -fSL -o /tmp/kafka.tgz \
-      https://archive.apache.org/dist/$KAFKA_URL_PATH
-
-#
+      https://archive.apache.org/dist/$KAFKA_URL_PATH; \
 # Verify the contents and then install ...
-#
-RUN set -eux; \
-    \
     tar -xzf /tmp/kafka.tgz -C $KAFKA_HOME --strip-components 1; \
-    rm -f /tmp/kafka.tgz
-
-COPY ./log4j.properties $KAFKA_HOME/config/log4j.properties
-RUN mkdir $KAFKA_HOME/config.orig; \
-    mv $KAFKA_HOME/config/* $KAFKA_HOME/config.orig
-
-#RUN ls -lha $KAFKA_HOME/libs
+    rm -f /tmp/kafka.tgz; \
 # Remove unnecessary files
-RUN rm $KAFKA_HOME/libs/*-sources.jar*; \
+    rm $KAFKA_HOME/libs/*-sources.jar*; \
     rm $KAFKA_HOME/libs/*-javadoc.jar*; \
     rm $KAFKA_HOME/libs/*-scaladoc.jar*
 
-#
+COPY ./log4j.properties $KAFKA_HOME/config/log4j.properties
+RUN mkdir $KAFKA_HOME/config.orig; \
+    mv $KAFKA_HOME/config/* $KAFKA_HOME/config.orig; \
 # Allow random UID to use Kafka
-#
-RUN chmod -R g+w,o+w $KAFKA_HOME
+    chmod -R g+w,o+w $KAFKA_HOME
 
 USER kafka
 
 # Set the working directory to the Kafka home directory
 WORKDIR $KAFKA_HOME
 
-#
 # Expose the ports and set up volumes for the data and logs directories
 #
 EXPOSE 9092

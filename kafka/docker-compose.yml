@@ -7,13 +7,15 @@ version: '2'
 
 services:
   zookeeper:
-    image: apando/zookeeper-alpine-zulu:0.1
+    build:
+      context: ./img-build/zookeeper
     ports:
       - 12181:2181
       - 12888:2888
       - 13888:3888
   kafka-server:
-    image: apando/kafka-alpine-zulu:0.1
+    build:
+      context: ./img-build/kafka
     volumes:
       - ./kafka-data:/kafka/data
       - ./kafka-logs:/kafka/logs
