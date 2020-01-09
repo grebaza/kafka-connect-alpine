@@ -7,24 +7,27 @@ version: '2'
 
 services:
   connect:
-    image: debezium/connect-jdbc-es:0.9
-    build:
-      context: 
+    image: krealo/connect-alpine-zulu:0.6
+    # build:
+    #   context: ./img-build/connect
     ports:
-     - 8083:8083
-     - 5005:5005
-    links:
-     - postgres
+      - 8083:8083
+      - 5005:5005
+    volumes:
+      - ./.secrets:/secrets
     environment:
-     - GROUP_ID=connect-sink
-     - BOOTSTRAP_SERVERS=${KAFKA_SERVER}:29094
-     - CONFIG_STORAGE_TOPIC=connect-sink_configs
-     - OFFSET_STORAGE_TOPIC=connect-sink_offsets
-     - STATUS_STORAGE_TOPIC=connect-sink_statuses
-     - KEY_CONVERTER=io.confluent.connect.avro.AvroConverter
-     - VALUE_CONVERTER=io.confluent.connect.avro.AvroConverter
-     - CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL=http://${KAFKA_SERVER}:8081
-     - CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://${KAFKA_SERVER}:8081
+      - GROUP_ID=connect-src
+      - BOOTSTRAP_SERVERS=kafka-server:9092
+      - CONFIG_STORAGE_TOPIC=connect-sink_configs
+      - OFFSET_STORAGE_TOPIC=connect-sink_offsets
+      - STATUS_STORAGE_TOPIC=connect-sink_statuses
+      - KEY_CONVERTER=io.confluent.connect.avro.AvroConverter
+      - VALUE_CONVERTER=io.confluent.connect.avro.AvroConverter
+      - CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+      - CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
 #     - CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE=false
 #     - CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=false
 #     - LOG_LEVEL=DEBUG
+    extra_hosts:
+      - "kafka-server:${KAFKA_SERVER}"
+      - "schema-registry:${SCHEMA_REGISTRY_SERVER}"

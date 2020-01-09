@@ -11,7 +11,7 @@
     "database.whitelist": "culqidb",
     "database.history.kafka.bootstrap.servers": "kafka-server:9092",
     "database.history.kafka.topic": "dbhistory.culqidb",
-    "table.whitelist": "culqidb.historial,culqidb.autorizacion",
+    "table.whitelist": "culqidb.historial,culqidb.autorizacion,culqidb.comercio,culqidb.usuario,culqidb.transaccion",
     "snapshot.mode": "when_needed"
   }
 }

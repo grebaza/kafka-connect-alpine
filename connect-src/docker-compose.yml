@@ -13,6 +13,8 @@ services:
     ports:
       - 8083:8083
       - 5005:5005
+    volumes:
+      - ./.secrets:/secrets
     environment:
       GROUP_ID: 'connect-source'
       BOOTSTRAP_SERVERS: 'kafka-server:9092'
@@ -26,6 +28,10 @@ services:
       CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: >-
         http://schema-registry:8081
       CONNECT_MAX_REQUEST_SIZE: 2097152
+      CONNECT_CONFIG_PROVIDERS: file
+      CONNECT_CONFIG_PROVIDERS_FILE_CLASS: >-
+        org.apache.kafka.common.config.provider.FileConfigProvider
     extra_hosts:
       - "kafka-server:${KAFKA_SERVER}"
       - "schema-registry:${SCHEMA_REGISTRY_SERVER}"
+      - "postgres:${PG_SERVER}"
