@@ -11,6 +11,7 @@
       "transforms.route.regex": "([^.]+)\\.([^.]+)\\.([^.]+)",
       "transforms.route.replacement": "$3",
       "connection.url": "jdbc:postgresql://postgres:5432/clq?currentSchema=ods&user=${file:/secrets/pg12.properties:user}&password=${file:/secrets/pg12.properties:password}",
+      "db.timezone": "America/Lima",
       "auto.create": "true",
       "insert.mode": "upsert",
       "pk.mode": "record_key"
