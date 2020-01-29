@@ -16,7 +16,7 @@ services:
       - ./.secrets:/secrets
     environment:
       GROUP_ID: '{{ connect_group_id }}'
-      BOOTSTRAP_SERVERS: 'kafka-server:{{ connect_kafka_port }}'
+      BOOTSTRAP_SERVERS: '{{ connect_kafka_servers }}'
       CONFIG_STORAGE_TOPIC: '{{ connect_topic_prefix }}_configs'
       OFFSET_STORAGE_TOPIC: '{{ connect_topic_prefix }}_offsets'
       STATUS_STORAGE_TOPIC: '{{ connect_topic_prefix }}_statuses'
@@ -31,5 +31,4 @@ services:
       CONNECT_CONFIG_PROVIDERS_FILE_CLASS: >-
         org.apache.kafka.common.config.provider.FileConfigProvider
     extra_hosts:
-      - "kafka-server:{{ connect_kafka_server }}"
       - "schema-registry:{{ connect_schema_registry }}"
