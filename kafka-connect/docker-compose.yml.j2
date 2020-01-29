@@ -1,26 +1,25 @@
 version: '2'
 
-# Data-source services
-# ====================
+# Kafka-connect Template
+# ======================
 #
 # - CNTR: container
 
 services:
   connect:
-    image: krealo/connect-alpine-zulu:0.6
-    # build:
-    #   context: ./img-build/connect
+    build:
+      context: ./img-build/connect
     ports:
       - 8083:8083
       - 5005:5005
     volumes:
       - ./.secrets:/secrets
     environment:
-      GROUP_ID: 'connect-source'
-      BOOTSTRAP_SERVERS: 'kafka-server:9092'
-      CONFIG_STORAGE_TOPIC: 'connect-source_configs'
-      OFFSET_STORAGE_TOPIC: 'connect-source_offsets'
-      STATUS_STORAGE_TOPIC: 'connect-source_statuses'
+      GROUP_ID: '{{ connect_group_id }}'
+      BOOTSTRAP_SERVERS: 'kafka-server:{{ connect_kafka_port }}'
+      CONFIG_STORAGE_TOPIC: '{{ connect_topic_prefix }}_configs'
+      OFFSET_STORAGE_TOPIC: '{{ connect_topic_prefix }}_offsets'
+      STATUS_STORAGE_TOPIC: '{{ connect_topic_prefix }}_statuses'
       KEY_CONVERTER: 'io.confluent.connect.avro.AvroConverter'
       VALUE_CONVERTER: 'io.confluent.connect.avro.AvroConverter'
       CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: >-
@@ -32,6 +31,5 @@ services:
       CONNECT_CONFIG_PROVIDERS_FILE_CLASS: >-
         org.apache.kafka.common.config.provider.FileConfigProvider
     extra_hosts:
-      - "kafka-server:${KAFKA_SERVER}"
-      - "schema-registry:${SCHEMA_REGISTRY_SERVER}"
-      - "postgres:${PG_SERVER}"
+      - "kafka-server:{{ connect_kafka_server }}"
+      - "schema-registry:{{ connect_schema_registry }}"
