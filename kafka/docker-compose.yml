@@ -13,12 +13,13 @@ services:
       - 2181:2181
       - 2888:2888
       - 3888:3888
+ 
   kafka-server:
     build:
       context: ./img-build/kafka
     volumes:
-      - ./kafka-data:/kafka/data
-      - ./kafka-logs:/kafka/logs
+      - /data/kafka-data:/kafka/data
+      - /data/kafka-logs:/kafka/logs
       - ./kafka-config:/kafka/config
     ports:
       - 9092:9092
@@ -32,7 +33,7 @@ services:
       KAFKA_DELETE_TOPIC_ENABLE: 'TRUE'
       ADVERTISED_LISTENERS: >-
         CNTR://kafka-server:29092,
-        CLOUD://${CLOUD_HOST}:9092
+        CLOUD://{{ ansible_host }}:9092
       LISTENERS: >-
         CNTR://:29092,
         CLOUD://:9092
