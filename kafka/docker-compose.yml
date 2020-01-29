@@ -10,9 +10,9 @@ services:
     build:
       context: ./img-build/zookeeper
     ports:
-      - 12181:2181
-      - 12888:2888
-      - 13888:3888
+      - 2181:2181
+      - 2888:2888
+      - 3888:3888
   kafka-server:
     build:
       context: ./img-build/kafka
@@ -21,8 +21,8 @@ services:
       - ./kafka-logs:/kafka/logs
       - ./kafka-config:/kafka/config
     ports:
-      - 19092:9092
-      - 39094:29094
+      - 9092:9092
+      - 9094:9094
     links:
       - zookeeper
     environment:
