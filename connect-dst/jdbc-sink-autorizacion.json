@@ -1,0 +1,19 @@
+{
+  "name": "pg12-sink-autorizacion",
+  "config": {
+  "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+  "tasks.max": "1",
+  "topics.regex": "culqi-live\\.culqidb\\.(autorizacion)",
+  "transforms": "unwrap, route",
+  "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+  "transforms.unwrap.drop.tombstones": "false",
+  "transforms.route.type": "org.apache.kafka.connect.transforms.RegexRouter",
+  "transforms.route.regex": "([^.]+)\\.([^.]+)\\.([^.]+)",
+  "transforms.route.replacement": "$3",
+  "connection.url": "jdbc:postgresql://postgres:5432/clq?currentSchema=ods&user=${file:/secrets/pg12.properties:user}&password=${file:/secrets/pg12.properties:password}",
+  "db.timezone": "America/Lima",
+  "auto.create": "true",
+  "insert.mode": "upsert",
+  "pk.mode": "record_key"
+}
+  }

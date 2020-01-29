@@ -1,9 +1,9 @@
 {
-  "name": "pg12-sink",
+  "name": "pg12-sink-usuario",
     "config": {
       "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
       "tasks.max": "1",
-      "topics.regex":"culqi-live\\.culqidb\\.(transaccion)",
+      "topics.regex":"culqi-live\\.culqidb\\.(usuario)",
       "transforms": "unwrap, route",
       "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
       "transforms.unwrap.drop.tombstones": "false",
