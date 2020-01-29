@@ -10,19 +10,20 @@ services:
     build:
       context: ./img-build/zookeeper
     ports:
-      - 12181:2181
-      - 12888:2888
-      - 13888:3888
+      - 2181:2181
+      - 2888:2888
+      - 3888:3888
+ 
   kafka-server:
     build:
       context: ./img-build/kafka
     volumes:
-      - ./kafka-data:/kafka/data
-      - ./kafka-logs:/kafka/logs
+      - /data/kafka-data:/kafka/data
+      - /data/kafka-logs:/kafka/logs
       - ./kafka-config:/kafka/config
     ports:
-      - 19092:9092
-      - 39094:29094
+      - 9092:9092
+      - 9094:9094
     links:
       - zookeeper
     environment:
@@ -32,7 +33,7 @@ services:
       KAFKA_DELETE_TOPIC_ENABLE: 'TRUE'
       ADVERTISED_LISTENERS: >-
         CNTR://kafka-server:29092,
-        CLOUD://${CLOUD_HOST}:9092
+        CLOUD://{{ ansible_ec2_local_ipv4 }}:9092
       LISTENERS: >-
         CNTR://:29092,
         CLOUD://:9092
