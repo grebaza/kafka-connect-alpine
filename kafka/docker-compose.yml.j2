@@ -33,7 +33,7 @@ services:
       KAFKA_DELETE_TOPIC_ENABLE: 'TRUE'
       ADVERTISED_LISTENERS: >-
         CNTR://kafka-server:29092,
-        CLOUD://{{ ansible_host }}:9092
+        CLOUD://{{ ansible_ec2_local_ipv4 }}:9092
       LISTENERS: >-
         CNTR://:29092,
         CLOUD://:9092
