@@ -18,7 +18,7 @@ services:
       - 2181:2181
       - 2888:2888
       - 3888:3888
-    extra_host:
+    extra_hosts:
       {% for host in groups['brokers'] %}
       - "zookeeper-{{ hostvars[host]['zookeeper_id'] }}:{{ hostvars[host]['ansible_default_ipv4']['address'] }}"
       {% endfor %}
