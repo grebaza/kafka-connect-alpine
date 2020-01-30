@@ -14,7 +14,7 @@ USER root
 RUN set -eux; \
     \
     apk add --no-cache iproute2 curl bash; \
-    adduser --uid 1001 -D -s /sbin/nologin zookeeper --home $ZK_HOME
+    adduser --uid 1001 -D -s /sbin/nologin zookeeper --home $ZK_HOME; \
     \
 # Change ownership and switch user
     chown -R zookeeper $ZK_HOME; \
