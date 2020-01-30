@@ -9,13 +9,21 @@ services:
   zookeeper:
     build:
       context: ./img-build/zookeeper
+    environment:
+      SERVER_ID: {{ zookeeper_id }}
+      SERVER_COUNT: {{ groups['brokers'] | length }}
     volumes:
       - /data/zk-data:/zookeeper/data
     ports:
       - 2181:2181
       - 2888:2888
       - 3888:3888
- 
+    extra_host:
+      {% for host in groups['brokers'] %}
+      - "zookeeper-{{ hostvars[host]['zookeeper_id'] }}:{{ hostvars[host]['ansible_default_ipv4.address'] }}"
+      {% endfor %}
+
+
   kafka-server:
     build:
       context: ./img-build/kafka
@@ -29,7 +37,7 @@ services:
     links:
       - zookeeper
     environment:
-      BROKER_ID: 1
+      BROKER_ID: {{ kafka_id }}
       ZOOKEEPER_CONNECT: '{{ kafka_zk_servers }}'
       KAFKA_INTER_BROKER_LISTENER_NAME: 'CLOUD'
       KAFKA_DELETE_TOPIC_ENABLE: 'TRUE'
