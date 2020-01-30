@@ -9,6 +9,8 @@ services:
   zookeeper:
     build:
       context: ./img-build/zookeeper
+    volumes:
+      - /data/zk-data:/zookeeper/data
     ports:
       - 2181:2181
       - 2888:2888
