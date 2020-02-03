@@ -17,7 +17,7 @@ ENV ZOO_CONF_DIR=/conf \
 RUN set -eux; \
     addgroup -g 1000 -S zookeeper; \
     # groupadd -r zookeeper --gid=1000; \
-    adduser -u 1000 -S zookeeper; \
+    adduser -G zookeeper -u 1000 -s /bin/sh -S -D zookeeper; \
     # useradd -r -g zookeeper --uid=1001 zookeeper; \
     mkdir -p "$ZOO_DATA_LOG_DIR" "$ZOO_DATA_DIR" "$ZOO_CONF_DIR" "$ZOO_LOG_DIR"; \
     chown zookeeper:zookeeper "$ZOO_DATA_LOG_DIR" "$ZOO_DATA_DIR" "$ZOO_CONF_DIR" "$ZOO_LOG_DIR"
