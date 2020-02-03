@@ -16,9 +16,9 @@ ENV ZOO_CONF_DIR=/conf \
 # Add a user with an explicit UID/GID and create necessary directories
 RUN set -eux; \
     addgroup -g 1000 -S zookeeper; \
-    adduser --uid 1000 -D zookeeper; \
     # groupadd -r zookeeper --gid=1000; \
-    # useradd -r -g zookeeper --uid=1000 zookeeper; \
+    adduser -u 1000 -S zookeeper; \
+    # useradd -r -g zookeeper --uid=1001 zookeeper; \
     mkdir -p "$ZOO_DATA_LOG_DIR" "$ZOO_DATA_DIR" "$ZOO_CONF_DIR" "$ZOO_LOG_DIR"; \
     chown zookeeper:zookeeper "$ZOO_DATA_LOG_DIR" "$ZOO_DATA_DIR" "$ZOO_CONF_DIR" "$ZOO_LOG_DIR"
 
@@ -26,7 +26,7 @@ RUN set -eux; \
 RUN set -eux; \
     apk add --no-cache \
         ca-certificates \
-        gnupg; \
+        gnupg
 #     apt-get update; \
 #     DEBIAN_FRONTEND=noninteractive \
 #     apt-get install -y --no-install-recommends \
