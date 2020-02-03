@@ -1,70 +1,92 @@
 FROM azul/zulu-openjdk-alpine:11.0.5-jre
 
-#
-# Set the version, home directory
-#
-ENV ZK_VERSION=3.5.6 \
-    ZK_HOME=/zookeeper
-ENV ZK_URL_PATH=zookeeper/zookeeper-$ZK_VERSION/apache-zookeeper-$ZK_VERSION-bin.tar.gz
+ENV ZOO_CONF_DIR=/conf \
+    ZOO_DATA_DIR=/data \
+    ZOO_DATA_LOG_DIR=/datalog \
+    ZOO_LOG_DIR=/logs \
+    ZOO_TICK_TIME=2000 \
+    ZOO_INIT_LIMIT=5 \
+    ZOO_SYNC_LIMIT=2 \
+    ZOO_AUTOPURGE_PURGEINTERVAL=0 \
+    ZOO_AUTOPURGE_SNAPRETAINCOUNT=3 \
+    ZOO_MAX_CLIENT_CNXNS=60 \
+    ZOO_STANDALONE_ENABLED=true \
+    ZOO_ADMINSERVER_ENABLED=true
 
-
-# Create a user and home directory for Zookeeper
-#
-USER root
+# Add a user with an explicit UID/GID and create necessary directories
 RUN set -eux; \
-    \
-    apk add --no-cache iproute2 curl bash; \
-    adduser --uid 1001 -D -s /sbin/nologin zookeeper --home $ZK_HOME; \
-    \
-# Change ownership and switch user
-    chown -R zookeeper $ZK_HOME; \
-    chgrp -R zookeeper $ZK_HOME
+    addgroup -g 1000 -S zookeeper; \
+    adduser --uid 1000 -D zookeeper; \
+    # groupadd -r zookeeper --gid=1000; \
+    # useradd -r -g zookeeper --uid=1000 zookeeper; \
+    mkdir -p "$ZOO_DATA_LOG_DIR" "$ZOO_DATA_DIR" "$ZOO_CONF_DIR" "$ZOO_LOG_DIR"; \
+    chown zookeeper:zookeeper "$ZOO_DATA_LOG_DIR" "$ZOO_DATA_DIR" "$ZOO_CONF_DIR" "$ZOO_LOG_DIR"
 
-USER zookeeper
-
+# Install required packges
 RUN set -eux; \
-    \
-    mkdir $ZK_HOME/data; \
-    mkdir $ZK_HOME/txns; \
-    mkdir $ZK_HOME/logs; \
-# Download and install Zookeeper
-    curl -fSL -o /tmp/zookeeper.tar.gz \
-        https://archive.apache.org/dist/$ZK_URL_PATH; \
-# Verify the contents and then install ...
-    tar -xzf /tmp/zookeeper.tar.gz -C $ZK_HOME --strip-components 1; \
-    rm -f /tmp/zookeeper.tar.gz; \
-# Remove unnecessary files
-    rm -rf $ZK_HOME/docs; \
-# Allow random UID to use Zookeeper
-    chmod -R g+w,o+w $ZK_HOME
+    apk add --no-cache \
+        ca-certificates \
+        gnupg; \
+#     apt-get update; \
+#     DEBIAN_FRONTEND=noninteractive \
+#     apt-get install -y --no-install-recommends \
+#         ca-certificates \
+#         dirmngr \
+#         gosu \
+#         gnupg \
+#         netcat \
+#         wget; \
+#     rm -rf /var/lib/apt/lists/*; \
+# Verify that gosu binary works
+    # gosu nobody true
 
-# Set the working directory to the Zookeeper home directory
-WORKDIR $ZK_HOME
+ARG GPG_KEY=BBE7232D7991050B54C8EA0ADC08637CA615D22C
+ARG SHORT_DISTRO_NAME=zookeeper-3.5.6
+ARG DISTRO_NAME=apache-zookeeper-3.5.6-bin
 
-
-# Customize the Zookeeper and Log4J configuration files
-#
-COPY ./zoo.cfg $ZK_HOME/conf/zoo.cfg
+# Download Apache Zookeeper, verify its PGP signature, untar and clean up
 RUN set -eux; \
+    ddist() { \
+        local f="$1"; shift; \
+        local distFile="$1"; shift; \
+        local success=; \
+        local distUrl=; \
+        for distUrl in \
+            'https://www.apache.org/dyn/closer.cgi?action=download&filename=' \
+            https://www-us.apache.org/dist/ \
+            https://www.apache.org/dist/ \
+            https://archive.apache.org/dist/ \
+        ; do \
+            if wget -q -O "$f" "$distUrl$distFile" && [ -s "$f" ]; then \
+                success=1; \
+                break; \
+            fi; \
+        done; \
+        [ -n "$success" ]; \
+    }; \
+    ddist "$DISTRO_NAME.tar.gz" "zookeeper/$SHORT_DISTRO_NAME/$DISTRO_NAME.tar.gz"; \
+    ddist "$DISTRO_NAME.tar.gz.asc" "zookeeper/$SHORT_DISTRO_NAME/$DISTRO_NAME.tar.gz.asc"; \
+    export GNUPGHOME="$(mktemp -d)"; \
+    gpg --keyserver ha.pool.sks-keyservers.net --recv-key "$GPG_KEY" || \
+    gpg --keyserver pgp.mit.edu --recv-keys "$GPG_KEY" || \
+    gpg --keyserver keyserver.pgp.com --recv-keys "$GPG_KEY"; \
+    gpg --batch --verify "$DISTRO_NAME.tar.gz.asc" "$DISTRO_NAME.tar.gz"; \
+    tar -zxf "$DISTRO_NAME.tar.gz"; \
+    mv "$DISTRO_NAME/conf/"* "$ZOO_CONF_DIR"; \
+    rm -rf "$GNUPGHOME" "$DISTRO_NAME.tar.gz" "$DISTRO_NAME.tar.gz.asc"; \
+    chown -R zookeeper:zookeeper "/$DISTRO_NAME";\
     \
-    sed -i -r \
-        -e "s|(\\$\\{zookeeper.log.dir\\})|$ZK_HOME/logs|g" \
-        -e "s|(\\$\\{zookeeper.tracelog.dir\\})|$ZK_HOME/logs|g" \
-        -e "s|(\\$\\{zookeeper.log.file\\})|zookeeper.log|g" \
-        -e "s|(\\$\\{zookeeper.tracelog.file\\})|zookeeper_trace.log|g" \
-        -e "s|(\[myid\:\%X\{myid\}\]\s?)||g" \
-        -e 's|#(log4j.appender.ROLLINGFILE.MaxBackupIndex.*)|\1|g' \
-        $ZK_HOME/conf/log4j.properties; \
-    mkdir $ZK_HOME/conf.orig && mv $ZK_HOME/conf/* $ZK_HOME/conf.orig
+    apk del gnupg;
 
 
-# Expose the ports and set up volumes for the data, transaction log,
-# and configuration
-#
-EXPOSE 2181 2888 3888
-VOLUME ["/zookeeper/data","/zookeeper/txns","/zookeeper/conf"]
+WORKDIR $DISTRO_NAME
+VOLUME ["$ZOO_DATA_DIR", "$ZOO_DATA_LOG_DIR", "$ZOO_LOG_DIR"]
 
-COPY ./docker-entrypoint.sh /
+EXPOSE 2181 2888 3888 8080
+
+ENV PATH=$PATH:/$DISTRO_NAME/bin \
+    ZOOCFGDIR=$ZOO_CONF_DIR
+
+COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["start"]
-
+CMD ["zkServer.sh", "start-foreground"]
