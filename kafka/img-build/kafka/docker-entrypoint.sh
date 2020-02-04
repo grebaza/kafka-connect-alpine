@@ -64,7 +64,7 @@ if [[ -n "$JMXPORT" && -n "$JMXHOST" ]]; then
 fi
 
 # Copy config files if not provided in volume
-cp -rn $KAFKA_HOME/config.orig/* $KAFKA_HOME/config
+false | cp -ir $KAFKA_HOME/config.orig/* $KAFKA_HOME/config 2>/dev/null
 
 # Process the argument to this container ...
 case $1 in
