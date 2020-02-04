@@ -42,7 +42,7 @@ services:
     ports:
       - 9092:9092
       - 9094:9094
-    links:
+    depends_on:
       - zookeeper
     environment:
       BROKER_ID: {{ kafka_id }}
