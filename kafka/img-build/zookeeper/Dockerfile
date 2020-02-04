@@ -27,8 +27,8 @@ RUN set -eux; \
     mkdir -p "$ZOO_DATA_LOG_DIR" "$ZOO_DATA_DIR" "$ZOO_CONF_DIR" \
       "$ZOO_LOG_DIR"; \
     chown zookeeper:zookeeper "$ZOO_DATA_LOG_DIR" "$ZOO_DATA_DIR" \
-      "$ZOO_CONF_DIR" "$ZOO_LOG_DIR";
-    # Install required packges
+      "$ZOO_CONF_DIR" "$ZOO_LOG_DIR"; \
+    # Install required packages
     \
     apk add --no-cache \
         ca-certificates \
