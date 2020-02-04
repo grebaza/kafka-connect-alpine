@@ -69,7 +69,7 @@ RUN set -eux; \
     rm -rf "$GNUPGHOME" "$DISTRO_NAME.tar.gz" "$DISTRO_NAME.tar.gz.asc"; \
     chown -R zookeeper:zookeeper "/$DISTRO_NAME"; \
     \
-    apk del gnupg;
+    apk del gnupg
 
 
 WORKDIR $DISTRO_NAME
