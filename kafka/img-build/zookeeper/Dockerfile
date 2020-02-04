@@ -22,7 +22,7 @@ ARG DISTRO_NAME=apache-zookeeper-3.5.6-bin
 RUN set -eux; \
     addgroup -g 1000 -S zookeeper; \
     # groupadd -r zookeeper --gid=1000; \
-    adduser -G zookeeper -u 1000 -s /bin/sh -S -D zookeeper; \
+    adduser -G zookeeper -u 1000 -s /bin/bash -S -D zookeeper; \
     # useradd -r -g zookeeper --uid=1001 zookeeper; \
     mkdir -p "$ZOO_DATA_LOG_DIR" "$ZOO_DATA_DIR" "$ZOO_CONF_DIR" \
       "$ZOO_LOG_DIR"; \
