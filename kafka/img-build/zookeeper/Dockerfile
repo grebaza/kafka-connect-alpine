@@ -13,39 +13,29 @@ ENV ZOO_CONF_DIR=/conf \
     ZOO_STANDALONE_ENABLED=true \
     ZOO_ADMINSERVER_ENABLED=true
 
+ARG GPG_KEY=BBE7232D7991050B54C8EA0ADC08637CA615D22C
+ARG SHORT_DISTRO_NAME=zookeeper-3.5.6
+ARG DISTRO_NAME=apache-zookeeper-3.5.6-bin
+
+
 # Add a user with an explicit UID/GID and create necessary directories
 RUN set -eux; \
     addgroup -g 1000 -S zookeeper; \
     # groupadd -r zookeeper --gid=1000; \
     adduser -G zookeeper -u 1000 -s /bin/sh -S -D zookeeper; \
     # useradd -r -g zookeeper --uid=1001 zookeeper; \
-    mkdir -p "$ZOO_DATA_LOG_DIR" "$ZOO_DATA_DIR" "$ZOO_CONF_DIR" "$ZOO_LOG_DIR"; \
-    chown zookeeper:zookeeper "$ZOO_DATA_LOG_DIR" "$ZOO_DATA_DIR" "$ZOO_CONF_DIR" "$ZOO_LOG_DIR"
-
-# Install required packges
-RUN set -eux; \
+    mkdir -p "$ZOO_DATA_LOG_DIR" "$ZOO_DATA_DIR" "$ZOO_CONF_DIR" \
+      "$ZOO_LOG_DIR"; \
+    chown zookeeper:zookeeper "$ZOO_DATA_LOG_DIR" "$ZOO_DATA_DIR" \
+      "$ZOO_CONF_DIR" "$ZOO_LOG_DIR";
+    # Install required packges
+    \
     apk add --no-cache \
         ca-certificates \
-        gnupg
-#     apt-get update; \
-#     DEBIAN_FRONTEND=noninteractive \
-#     apt-get install -y --no-install-recommends \
-#         ca-certificates \
-#         dirmngr \
-#         gosu \
-#         gnupg \
-#         netcat \
-#         wget; \
-#     rm -rf /var/lib/apt/lists/*; \
-# Verify that gosu binary works
-    # gosu nobody true
-
-ARG GPG_KEY=BBE7232D7991050B54C8EA0ADC08637CA615D22C
-ARG SHORT_DISTRO_NAME=zookeeper-3.5.6
-ARG DISTRO_NAME=apache-zookeeper-3.5.6-bin
-
-# Download Apache Zookeeper, verify its PGP signature, untar and clean up
-RUN set -eux; \
+        bash \
+        gnupg;
+    \
+    # Download Apache Zookeeper, verify its PGP signature, untar and clean up
     ddist() { \
         local f="$1"; shift; \
         local distFile="$1"; shift; \
@@ -64,17 +54,20 @@ RUN set -eux; \
         done; \
         [ -n "$success" ]; \
     }; \
-    ddist "$DISTRO_NAME.tar.gz" "zookeeper/$SHORT_DISTRO_NAME/$DISTRO_NAME.tar.gz"; \
-    ddist "$DISTRO_NAME.tar.gz.asc" "zookeeper/$SHORT_DISTRO_NAME/$DISTRO_NAME.tar.gz.asc"; \
-    export GNUPGHOME="$(mktemp -d)"; \
-    gpg --keyserver ha.pool.sks-keyservers.net --recv-key "$GPG_KEY" || \
-    gpg --keyserver pgp.mit.edu --recv-keys "$GPG_KEY" || \
-    gpg --keyserver keyserver.pgp.com --recv-keys "$GPG_KEY"; \
+    \
+    ddist "$DISTRO_NAME.tar.gz" \
+      "zookeeper/$SHORT_DISTRO_NAME/$DISTRO_NAME.tar.gz"; \
+    ddist "$DISTRO_NAME.tar.gz.asc" \
+      "zookeeper/$SHORT_DISTRO_NAME/$DISTRO_NAME.tar.gz.asc"; \
+    GNUPGHOME="$(mktemp -d)"; \
+    gpg --keyserver ha.pool.sks-keyservers.net --recv-key "$GPG_KEY" \
+      || gpg --keyserver pgp.mit.edu --recv-keys "$GPG_KEY" \
+      || gpg --keyserver keyserver.pgp.com --recv-keys "$GPG_KEY"; \
     gpg --batch --verify "$DISTRO_NAME.tar.gz.asc" "$DISTRO_NAME.tar.gz"; \
     tar -zxf "$DISTRO_NAME.tar.gz"; \
     mv "$DISTRO_NAME/conf/"* "$ZOO_CONF_DIR"; \
     rm -rf "$GNUPGHOME" "$DISTRO_NAME.tar.gz" "$DISTRO_NAME.tar.gz.asc"; \
-    chown -R zookeeper:zookeeper "/$DISTRO_NAME";\
+    chown -R zookeeper:zookeeper "/$DISTRO_NAME"; \
     \
     apk del gnupg;
 
