@@ -137,8 +137,7 @@ case $1 in
         sed -i -r -e \
           "s|^(log4j.appender.stdout.threshold)=.*|\1=${LOG_LEVEL}|g" \
           "$KAFKA_HOME"/config/log4j.properties
-        export KAFKA_LOG4J_OPTS= \
-          "-Dlog4j.configuration=file:$KAFKA_HOME/config/log4j.properties"
+        export KAFKA_LOG4J_OPTS="-Dlog4j.configuration=file:$KAFKA_HOME/config/log4j.properties"
         unset LOG_LEVEL
 
         # Add missing EOF at the end of the config file
