@@ -33,7 +33,7 @@ RUN set -eux; \
     apk add --no-cache \
         ca-certificates \
         bash \
-        gnupg;
+        gnupg; \
     \
     # Download Apache Zookeeper, verify its PGP signature, untar and clean up
     ddist() { \
@@ -55,10 +55,8 @@ RUN set -eux; \
         [ -n "$success" ]; \
     }; \
     \
-    ddist "$DISTRO_NAME.tar.gz" \
-      "zookeeper/$SHORT_DISTRO_NAME/$DISTRO_NAME.tar.gz"; \
-    ddist "$DISTRO_NAME.tar.gz.asc" \
-      "zookeeper/$SHORT_DISTRO_NAME/$DISTRO_NAME.tar.gz.asc"; \
+    ddist "$DISTRO_NAME.tar.gz" "zookeeper/$SHORT_DISTRO_NAME/$DISTRO_NAME.tar.gz"; \
+    ddist "$DISTRO_NAME.tar.gz.asc" "zookeeper/$SHORT_DISTRO_NAME/$DISTRO_NAME.tar.gz.asc"; \
     GNUPGHOME="$(mktemp -d)"; \
     gpg --keyserver ha.pool.sks-keyservers.net --recv-key "$GPG_KEY" \
       || gpg --keyserver pgp.mit.edu --recv-keys "$GPG_KEY" \
