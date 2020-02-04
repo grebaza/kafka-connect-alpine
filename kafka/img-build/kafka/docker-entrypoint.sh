@@ -166,7 +166,7 @@ case $1 in
             # Process all environment variables that start with 'KAFKA_'
             # (but not 'KAFKA_HOME' or 'KAFKA_VERSION'):
             for VAR in $(env); do
-                env_var=$(echo "$VAR" | sed -r "s/(.*)=.*/\1/g")
+                env_var=$(echo "$VAR" | sed -r "s/([^=]*)=.*/\1/g")
                 if [[ $env_var =~ ^KAFKA_ \
                   && $env_var != "KAFKA_VERSION" \
                   && $env_var != "KAFKA_HOME" \
