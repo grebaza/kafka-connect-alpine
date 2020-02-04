@@ -17,7 +17,7 @@ RUN set -eux; \
     \
     apk add --no-cache --upgrade iproute2 curl bash; \
     addgroup -g 1001 -S kafka; \
-    adduser -G kafka -u 1001 -s /sbin/nologin -h $KAFKA_HOME -S -D kafka; \
+    adduser -G kafka -u 1001 -s /bin/bash -h $KAFKA_HOME -S -D kafka; \
     \
     chmod 755 $KAFKA_HOME; \
     mkdir $KAFKA_HOME/data; \
