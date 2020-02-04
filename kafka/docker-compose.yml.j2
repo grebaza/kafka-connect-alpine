@@ -12,13 +12,14 @@ services:
     environment:
       ZOO_MY_ID: {{ zookeeper_id }}
       ZOO_SERVERS: >-
-    {%- for host in groups['brokers'] %}
+    {% for host in groups['brokers'] %}
       server.{{ hostvars[host]['zookeeper_id'] }}=
     {%- if zookeeper_id == hostvars[host]['zookeeper_id'] %}0.0.0.0
     {%- else -%}
     {{ hostvars[host]['ansible_default_ipv4']['address'] -}}
     {% endif %}:2888:3888;2181
     {% endfor %}
+
     volumes:
       - /data/zk-data:/data
     ports:
