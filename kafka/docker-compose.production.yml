@@ -1,0 +1,18 @@
+version: '2'
+
+# Kafka service
+# ====================
+#
+# - CNTR: container
+
+services:
+  zookeeper:
+    restart: unless-stopped
+    environment:
+      LOG_LEVEL: WARN
+
+
+  kafka-server:
+    restart: unless-stopped
+    environment:
+      LOG_LEVEL: WARN
