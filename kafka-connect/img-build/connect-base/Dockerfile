@@ -1,4 +1,5 @@
-FROM krealo/kafka-alpine-zulu:0.8
+ARG KAFKA_IMAGE
+FROM $KAFKA_IMAGE
 
 EXPOSE 8083
 VOLUME ["/kafka/data","/kafka/logs","/kafka/config"]
