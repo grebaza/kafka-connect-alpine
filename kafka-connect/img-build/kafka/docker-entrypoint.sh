@@ -109,8 +109,8 @@ echo "Using KAFKA_ADVERTISED_LISTENERS=$KAFKA_ADVERTISED_LISTENERS"
 #
 # Set up the JMX options
 #
-: "${JMXAUTH:=false}"
-: "${JMXSSL:=false}"
+: "${JMXAUTH:='false'}"
+: "${JMXSSL:='false'}"
 if [[ -n "$JMXPORT" && -n "$JMXHOST" ]]; then
     echo "Enabling JMX on ${JMXHOST}:${JMXPORT}"
     export KAFKA_JMX_OPTS="-Djava.rmi.server.hostname=${JMXHOST} \
@@ -118,11 +118,11 @@ if [[ -n "$JMXPORT" && -n "$JMXHOST" ]]; then
       -Dcom.sun.management.jmxremote.port=${JMXPORT} \
       -Dcom.sun.management.jmxremote \
       -Dcom.sun.management.jmxremote.authenticate=${JMXAUTH} \
-      -Dcom.sun.management.jmxremote.ssl=${JMXSSL} "
+      -Dcom.sun.management.jmxremote.ssl=${JMXSSL}"
 fi
 
 # Copy config files if not provided in volume
-cp -r "$KAFKA_HOME"/config.orig/* "$KAFKA_HOME"/config
+false | cp -ir $KAFKA_HOME/config.orig/* $KAFKA_HOME/config 2>/dev/null
 
 # Process the argument to this container ...
 case $1 in
@@ -137,8 +137,7 @@ case $1 in
         sed -i -r -e \
           "s|^(log4j.appender.stdout.threshold)=.*|\1=${LOG_LEVEL}|g" \
           "$KAFKA_HOME"/config/log4j.properties
-        env "KAFKA_LOG4J_OPTS=-Dlog4j.configuration= \
-          file:$KAFKA_HOME/config/log4j.properties" bash
+        export KAFKA_LOG4J_OPTS="-Dlog4j.configuration=file:$KAFKA_HOME/config/log4j.properties"
         unset LOG_LEVEL
 
         # Add missing EOF at the end of the config file
@@ -166,10 +165,10 @@ case $1 in
             # Process all environment variables that start with 'KAFKA_'
             # (but not 'KAFKA_HOME' or 'KAFKA_VERSION'):
             for VAR in $(env); do
-                env_var=$(echo "$VAR" | sed -r "s/(.*)=.*/\1/g")
+                env_var=$(echo "$VAR" | sed -r "s/([^=]*)=.*/\1/g")
                 if [[ $env_var =~ ^KAFKA_ \
                   && $env_var != "KAFKA_VERSION" \
-                  && $env_var != "KAFKA_HOME"  \
+                  && $env_var != "KAFKA_HOME" \
                   && $env_var != "KAFKA_LOG4J_OPTS" \
                   && $env_var != "KAFKA_JMX_OPTS" ]]; then
                   prop_name=$(echo "$VAR" \
@@ -324,4 +323,3 @@ esac
 
 # Otherwise just run the specified command
 exec "$@"
-
