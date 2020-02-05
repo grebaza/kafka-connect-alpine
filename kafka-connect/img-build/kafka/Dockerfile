@@ -6,7 +6,7 @@ FROM azul/zulu-openjdk-alpine:11.0.5-jre
 ENV KAFKA_VERSION=2.4.0 \
     SCALA_VERSION=2.12 \
     KAFKA_HOME=/kafka \
-    SHA512HASH="53B52F86EA56C9FAC62046524F03F75665A089EA2DAE554AEFE3A3D2694F2DA88B5BA8725D8BE55F198BA80695443559ED9DE7C0B2A2817F7A6141008FF79F49"
+    SHA512HASH="53b52f86ea56c9fac62046524f03f75665a089ea2dae554aefe3a3d2694f2da88b5ba8725d8be55f198ba80695443559ed9de7c0b2a2817f7a6141008ff79f49"
 ENV KAFKA_URL_PATH=kafka/$KAFKA_VERSION/kafka_$SCALA_VERSION-$KAFKA_VERSION.tgz
 
 # Create a user and home directory for Kafka
@@ -16,17 +16,17 @@ USER root
 RUN set -eux; \
     \
     apk add --no-cache --upgrade iproute2 curl bash; \
-    adduser --uid 1001 -D -s /sbin/nologin kafka --home $KAFKA_HOME; \
+    addgroup -g 1001 -S kafka; \
+    adduser -G kafka -u 1001 -s /bin/bash -h $KAFKA_HOME -S -D kafka; \
+    \
+    chmod 755 $KAFKA_HOME; \
     mkdir $KAFKA_HOME/data; \
     mkdir $KAFKA_HOME/logs; \
     \
 # Change ownership and switch user
-    chown -R kafka: $KAFKA_HOME; \
-    chgrp -R kafka $KAFKA_HOME
-
+    chown -R kafka $KAFKA_HOME; \
+    chgrp -R kafka $KAFKA_HOME; \
 # Download Kafka
-#
-RUN set -eux; \
     \
     curl -fSL -o /tmp/kafka.tgz \
       $(curl --stderr /dev/null \
@@ -60,6 +60,5 @@ EXPOSE 9092
 VOLUME ["/kafka/data","/kafka/logs","/kafka/config"]
 
 COPY ./docker-entrypoint.sh /
-ENTRYPOINT ["/bin/bash", "/docker-entrypoint.sh"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["start"]
-
