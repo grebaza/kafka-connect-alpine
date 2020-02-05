@@ -10,6 +10,7 @@ services:
     build:
       context: ./img-build/zookeeper
     environment:
+      ZOO_STANDALONE_ENABLED: 'false'
       ZOO_MY_ID: {{ zookeeper_id }}
       ZOO_SERVERS: >-
     {% for host in groups['brokers'] %}
@@ -49,12 +50,6 @@ services:
       ZOOKEEPER_CONNECT: 'zookeeper:2181,{{ kafka_zk_servers }}'
       KAFKA_INTER_BROKER_LISTENER_NAME: 'CLOUD'
       KAFKA_DELETE_TOPIC_ENABLE: 'TRUE'
-      ADVERTISED_LISTENERS: >-
-        CNTR://kafka-server:29092,
-        CLOUD://{{ ansible_default_ipv4.address }}:9092
-      LISTENERS: >-
-        CNTR://:29092,
-        CLOUD://:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: >-
-        CNTR:PLAINTEXT,
-        CLOUD:PLAINTEXT
+      LISTENERS: CLOUD://0.0.0.0:9092
+      ADVERTISED_LISTENERS: CLOUD://{{ ansible_default_ipv4.address }}:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CLOUD:PLAINTEXT
