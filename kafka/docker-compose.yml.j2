@@ -49,7 +49,7 @@ services:
       BROKER_ID: {{ kafka_id }}
       ZOOKEEPER_CONNECT: '{{ kafka_zk_servers }}'
       KAFKA_INTER_BROKER_LISTENER_NAME: 'CLOUD'
-      KAFKA_DELETE_TOPIC_ENABLE: 'TRUE'
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
       LISTENERS: CLOUD://0.0.0.0:9092
       ADVERTISED_LISTENERS: CLOUD://{{ ansible_default_ipv4.address }}:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CLOUD:PLAINTEXT
