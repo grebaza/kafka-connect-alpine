@@ -47,7 +47,7 @@ services:
       - zookeeper
     environment:
       BROKER_ID: {{ kafka_id }}
-      ZOOKEEPER_CONNECT: 'zookeeper:2181,{{ kafka_zk_servers }}'
+      ZOOKEEPER_CONNECT: '{{ kafka_zk_servers }}'
       KAFKA_INTER_BROKER_LISTENER_NAME: 'CLOUD'
       KAFKA_DELETE_TOPIC_ENABLE: 'TRUE'
       LISTENERS: CLOUD://0.0.0.0:9092
