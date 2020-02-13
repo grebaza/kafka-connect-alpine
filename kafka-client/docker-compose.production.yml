@@ -1,0 +1,11 @@
+version: '2'
+
+# Data-source services (Production setup)
+# =======================================
+#
+# - CNTR: container
+
+services:
+  connect:
+    environment:
+      LOG_LEVEL: WARN

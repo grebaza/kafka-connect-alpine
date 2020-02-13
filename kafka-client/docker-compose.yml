@@ -1,0 +1,26 @@
+version: '2'
+
+# Kafka-client Template
+# ======================
+#
+# - CNTR: container
+
+services:
+  kafka-base:
+    image: krealo/kafka-alpine-zulu:0.8
+    build:
+      context: ./img-build/kafka
+    entrypoint: 'true'
+
+  connect:
+    build:
+      context: ./img-build/connect
+      args:
+        KAFKA_IMAGE: krealo/kafka-alpine-zulu:0.8
+#    ports:
+#      - 8083:8083
+#      - 5005:5005
+    entrypoint: 'bash'
+    environment:
+      ZOOKEEPER_CONNECT: '172.31.3.50:2181,172.31.11.39:2181,172.31.12.84:2181'
+      BOOTSTRAP_SERVERS: '172.31.3.50:9092,172.31.11.39:9092,172.31.12.84:9092'
