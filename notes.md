@@ -16,22 +16,21 @@ Kafka Connect
 
 
 #Consume from kafka-connect container
-- Deserializing Avrod (key and value)
+- Deserializing Avro (key and value)
 ```bash
-SCHEMA_REGISTRY_HOST=schema-registry;
-KAFKA_BOOTSTRAP_SERVERS=kafka-server;
-KAFKA_PORT=9092;
-TABLE_NAME=culqi-live.culqidb.autorizacion;
+BOOTSTRAP_SERVERS=172.31.3.50:9092,172.31.11.39:9092,172.31.12.84:9092
+SCHEMA_REGISTRY_HOST=172.31.29.160;
+TABLE_NAME=test20200213.test.usuarios;
 ./bin/kafka-console-consumer.sh \
-  --bootstrap-server $KAFKA_BOOTSTRAP_SERVERS:$KAFKA_PORT \
+  --bootstrap-server $BOOTSTRAP_SERVERS \
   --value-deserializer=io.confluent.kafka.serializers.KafkaAvroDeserializer \
   --key-deserializer=io.confluent.kafka.serializers.KafkaAvroDeserializer \
   --topic $TABLE_NAME \
   --property print.key=true \
   --property value.deserializer.schema.registry.url=http://$SCHEMA_REGISTRY_HOST:8081 \
-  --property key.deserializer.schema.registry.url=http://$SCHEMA_REGISTRY_HOST:8081 \
-  --from-beginning
+  --property key.deserializer.schema.registry.url=http://$SCHEMA_REGISTRY_HOST:8081
 ```
+> --from-beginning
 
 #Kafka Connect Single Message Transform (SMT)
 - Tranforms message
