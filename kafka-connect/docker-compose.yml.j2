@@ -1,18 +1,19 @@
 version: '2'
 
-# Kafka-connect Template
-# ======================
+# Kafka-connect Service
+# =====================
 #
 # - CNTR: container
 
 services:
   kafka-base:
-    image: krealo/kafka-alpine-zulu:0.8
+    image: '{{ docker_registry }}:{{ docker_registry_port }}/{{ kafka_image }}'
     build:
       context: ./img-build/kafka
     entrypoint: 'true'
 
   connect:
+    image: '{{ docker_registry }}:{{ docker_registry_port }}/{{ kafka_connect_image }}'
     build:
       context: ./img-build/connect
       args:
