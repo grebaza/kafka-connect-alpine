@@ -14,8 +14,8 @@ ENV ZOO_CONF_DIR=/conf \
     ZOO_ADMINSERVER_ENABLED=true
 
 ARG GPG_KEY=BBE7232D7991050B54C8EA0ADC08637CA615D22C
-ARG SHORT_DISTRO_NAME=zookeeper-3.5.6
-ARG DISTRO_NAME=apache-zookeeper-3.5.6-bin
+ARG SHORT_DISTRO_NAME=zookeeper-3.6.0
+ARG DISTRO_NAME=apache-zookeeper-3.6.0-bin
 
 
 # Add a user with an explicit UID/GID and create necessary directories

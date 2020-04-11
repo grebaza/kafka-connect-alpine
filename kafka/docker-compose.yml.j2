@@ -1,12 +1,13 @@
 version: '2'
 
 # Kafka service
-# ====================
+# =============
 #
 # - CNTR: container
 
 services:
   zookeeper:
+    image: '{{ docker-registry }}:{{ docker_registry_port }}/{{ zookeeper_image }}'
     build:
       context: ./img-build/zookeeper
     environment:
@@ -32,8 +33,8 @@ services:
     - "zookeeper-{{ hostvars[host]['zookeeper_id'] }}:{{ hostvars[host]['ansible_default_ipv4']['address'] }}"
   {% endfor %}
 
-
   kafka-server:
+    image: '{{ docker-registry }}:{{ docker_registry_port }}/{{ kafka_image }}'
     build:
       context: ./img-build/kafka
     volumes:
