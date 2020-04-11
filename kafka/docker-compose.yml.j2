@@ -7,7 +7,7 @@ version: '2'
 
 services:
   zookeeper:
-    image: '{{ docker-registry }}:{{ docker_registry_port }}/{{ zookeeper_image }}'
+    image: '{{ docker_registry }}:{{ docker_registry_port }}/{{ zookeeper_image }}'
     build:
       context: ./img-build/zookeeper
     environment:
@@ -34,7 +34,7 @@ services:
   {% endfor %}
 
   kafka-server:
-    image: '{{ docker-registry }}:{{ docker_registry_port }}/{{ kafka_image }}'
+    image: '{{ docker_registry }}:{{ docker_registry_port }}/{{ kafka_image }}'
     build:
       context: ./img-build/kafka
     volumes:
