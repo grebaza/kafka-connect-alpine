@@ -21,6 +21,7 @@ services:
     {{ hostvars[host]['ansible_default_ipv4']['address'] -}}
     {% endif %}:2888:3888;2181
     {% endfor %}
+
     volumes:
       - /data/zk-data:/data
     ports:
