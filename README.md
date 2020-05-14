@@ -4,6 +4,7 @@ implement a change data capture (CDC) architecture based on Alpine Linux.
 
 
 ## Architecture
+```
 +---------------+     +---------------+     +---------------+
 |               |     |               |     |               |
 | Kafka-connect | --> | Kafka Cluster | --> | Kafka-connect |
@@ -16,6 +17,7 @@ implement a change data capture (CDC) architecture based on Alpine Linux.
                      | Schema-registry |
                      |                 |
                      +-----------------+
+```
 
 ## Zookeeper
 - Container settings
