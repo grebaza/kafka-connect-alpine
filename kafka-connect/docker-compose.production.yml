@@ -7,5 +7,6 @@ version: '2'
 
 services:
   connect:
+    restart: unless-stopped
     environment:
       LOG_LEVEL: WARN
