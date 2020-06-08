@@ -3,7 +3,7 @@
 set -e
 
 
-CHUB_URI=https://api.hub.confluent.io/api/plugins/confluentinc
+CHUB_URI=https://api.hub.confluent.io/api/plugins
 CHUB_PKG="$1"
 CHUB_PKG_VERSION="$2"
 CHUB_URI="$CHUB_URI/$CHUB_PKG/versions/$CHUB_PKG_VERSION"
