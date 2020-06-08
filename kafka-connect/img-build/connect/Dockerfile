@@ -93,7 +93,7 @@ ENV DEBEZIUM_VERSION="1.1.1.Final" \
     CONNECT_JDBC_MD5=099919634ac922363a57ed499f6a91a6 \
     CONNECT_TRANSFORMS="connect-transforms" \
     CONNECT_TRANSFORMS_VERSION="1.3.2" \
-    CONNECT_HTTP="castorm-kafka-connect-http" \
+    CONNECT_HTTP="castorm/kafka-connect-http" \
     CONNECT_HTTP_VERSION="0.6.1"
 
 WORKDIR $KAFKA_CONNECT_PLUGINS_DIR
