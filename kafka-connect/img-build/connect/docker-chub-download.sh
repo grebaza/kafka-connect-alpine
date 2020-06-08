@@ -14,6 +14,6 @@ curl -fSL -o "$CHUB_FILE" \
     's/.*("archive":.*)/\1/; s/(("url":"([^"]*)".*)*.)*/\3/p' \
   )
 mv "$CHUB_FILE" "$CHUB_DEP_DESTINATION"
-unzip "$CHUB_DEP_DESTINATION$CHUB_FILE"
-rm "$CHUB_DEP_DESTINATION$CHUB_FILE"
+unzip "$CHUB_DEP_DESTINATION${CHUB_FILE##*/}"
+rm "$CHUB_DEP_DESTINATION${CHUB_FILE##*/}"
 
