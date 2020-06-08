@@ -8,6 +8,7 @@ VOLUME ["/kafka/data","/kafka/logs","/kafka/config"]
 COPY docker-entrypoint.sh /
 COPY log4j.properties $KAFKA_HOME/config/log4j.properties
 COPY docker-maven-download.sh /usr/local/bin/docker-maven-download
+COPY docker-chub-download.sh /usr/local/bin/docker-chub-download
 
 #
 # Set up the plugins directory ...
@@ -79,17 +80,21 @@ FROM connect_base as connect
 ARG POSTGRES_VERSION=42.2.8
 
 ENV DEBEZIUM_VERSION="1.1.1.Final" \
-    CONFLUENT_SMT_VERSION="1.3.2" \
     MAVEN_REPO_CENTRAL="" \
     MAVEN_REPO_INCUBATOR="" \
     MAVEN_DEP_DESTINATION=$KAFKA_CONNECT_PLUGINS_DIR \
+    CHUB_DEP_DESTINATION=$KAFKA_CONNECT_PLUGINS_DIR \
     MONGODB_MD5=0071931fe4e359d4785c473e1117c72c \
     MYSQL_MD5=8930fee8a22b00567f7998819c24f08d \
     POSTGRES_MD5=7c0a9f5f9ce03a1c00200392d5e7f09b \
     SQLSERVER_MD5=03728bc40e1d375e4a4cea1294f6cb42 \
     ORACLE_MD5=4ef6c6527ae902092bb49e00280ffd49 \
     DB2_MD5=8f776cc3610514dd5e575a1b01993abf \
-    CONNECT_JDBC_MD5=099919634ac922363a57ed499f6a91a6
+    CONNECT_JDBC_MD5=099919634ac922363a57ed499f6a91a6 \
+    CONNECT_TRANSFORMS="connect-transforms" \
+    CONNECT_TRANSFORMS_VERSION="1.3.2" \
+    CONNECT_HTTP="castorm-kafka-connect-http" \
+    CONNECT_HTTP_VERSION="0.6.1"
 
 WORKDIR $KAFKA_CONNECT_PLUGINS_DIR
 RUN set -eux; \
@@ -102,17 +107,8 @@ RUN set -eux; \
     docker-maven-download debezium-incubator db2 "$DEBEZIUM_VERSION" "$DB2_MD5"; \
     docker-maven-download confluent kafka-connect-jdbc "$CONFLUENT_VERSION" "$CONNECT_JDBC_MD5"; \
     \
-    CHUB_URI=https://api.hub.confluent.io/api/plugins/confluentinc; \
-    CHUB_PKG=connect-transforms; \
-    CHUB_PKG_VERSION="$CONFLUENT_SMT_VERSION"; \
-    CHUB_URI="$CHUB_URI/$CHUB_PKG/versions/$CHUB_PKG_VERSION"; \
-    CHUB_FILE=$(mktemp); \
-    curl -fSL -o "$CHUB_FILE" \
-      $( curl --stderr /dev/null "$CHUB_URI" \
-         | sed -rn \
-           's/.*("archive":.*)/\1/; s/(("url":"([^"]*)".*)*.)*/\3/p' \
-      ); \
-    unzip "$CHUB_FILE"; rm "$CHUB_FILE"
+    docker-chub-download "$CONNECT_TRANSFORMS" "$CONNECT_TRANSFORMS_VERSION"; \
+    docker-chub-download "$CONNECT_HTTP" "$CONNECT_HTTP_VERSION"
 
 WORKDIR /kafka/libs
 RUN set -eux; \
