@@ -108,7 +108,7 @@ RUN set -eux; \
     docker-maven-download confluent kafka-connect-jdbc "$CONFLUENT_VERSION" "$CONNECT_JDBC_MD5"; \
     \
     docker-chub-download "$CONNECT_TRANSFORMS" "$CONNECT_TRANSFORMS_VERSION"; \
-    docler-maven-download central-plugin com/github/castorm kafka-connect-http \
+    docker-maven-download central-plugin com/github/castorm kafka-connect-http \
           "$CONNECT_HTTP_VERSION" "$CONNECT_HTTP_MD5"
 
 WORKDIR /kafka/libs
