@@ -46,14 +46,17 @@ maven_confluent_dep() {
     mv "$DOWNLOAD_FILE" $MAVEN_DEP_DESTINATION
 }
 
-maven_debezium_plugin() {
-    maven_dep $MAVEN_REPO_CENTRAL "io/debezium" "debezium-connector-$1" $2 "debezium-connector-$1-$2-plugin.tar.gz" $3
+maven_dep_plugin() {
+    maven_dep $1 $2 $3 $4 "$3-$4-plugin.tar.gz" $5
     tar -xzf "$DOWNLOAD_FILE" -C "$MAVEN_DEP_DESTINATION" && rm "$DOWNLOAD_FILE"
 }
 
+maven_debezium_plugin() {
+    maven_dep_plugin $MAVEN_REPO_CENTRAL "io/debezium" "debezium-connector-$1" $2 $3
+}
+
 maven_debezium_incubator_plugin() {
-    maven_dep $MAVEN_REPO_INCUBATOR "io/debezium" "debezium-connector-$1" $2 "debezium-connector-$1-$2-plugin.tar.gz" $3
-    tar -xzf "$DOWNLOAD_FILE" -C "$MAVEN_DEP_DESTINATION" && rm "$DOWNLOAD_FILE"
+    maven_dep_plugin $MAVEN_REPO_INCUBATOR "io/debezium" "debezium-connector-$1" $2 $3
 }
 
 case $1 in
@@ -68,5 +71,11 @@ case $1 in
             ;;
     "debezium-incubator" ) shift
             maven_debezium_incubator_plugin ${@}
+            ;;
+    "central-plugin" ) shift
+            maven_dep_plugin $MAVEN_REPO_CENTRAL ${@}
+            ;;
+    "incubator-plugin" ) shift
+            maven_dep_plugin $MAVEN_REPO_INCUBATOR ${@}
             ;;
 esac

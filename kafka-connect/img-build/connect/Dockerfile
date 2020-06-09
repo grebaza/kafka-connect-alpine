@@ -94,7 +94,7 @@ ENV DEBEZIUM_VERSION="1.1.1.Final" \
     CONNECT_TRANSFORMS="confluentinc/connect-transforms" \
     CONNECT_TRANSFORMS_VERSION="1.3.2" \
     CONNECT_HTTP_VERSION="0.7.6" \
-    CONNECT_HTTP_MD5=99a9860dc3cd9ff1c80b61cacc9ccdd4
+    CONNECT_HTTP_MD5=8486833a2e6958f3998620cd076b7ecf
 
 WORKDIR $KAFKA_CONNECT_PLUGINS_DIR
 RUN set -eux; \
@@ -108,7 +108,7 @@ RUN set -eux; \
     docker-maven-download confluent kafka-connect-jdbc "$CONFLUENT_VERSION" "$CONNECT_JDBC_MD5"; \
     \
     docker-chub-download "$CONNECT_TRANSFORMS" "$CONNECT_TRANSFORMS_VERSION"; \
-    docker-maven-download central com/github/castorm kafka-connect-http \
+    docler-maven-download central-plugin com/github/castorm kafka-connect-http \
           "$CONNECT_HTTP_VERSION" "$CONNECT_HTTP_MD5"
 
 WORKDIR /kafka/libs
