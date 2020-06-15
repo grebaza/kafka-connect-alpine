@@ -77,7 +77,7 @@ CMD ["start"]
 # Stage: connect
 FROM connect_base as connect
 
-ARG POSTGRES_VERSION=42.2.14
+ARG POSTGRES_VERSION=42.2.8
 
 ENV DEBEZIUM_VERSION="1.1.1.Final" \
     MAVEN_REPO_CENTRAL="" \
@@ -118,6 +118,10 @@ RUN set -eux; \
     \
     MAVEN_DEP_DESTINATION=/kafka/libs; \
     docker-maven-download central mysql mysql-connector-java \
-          "$MYSQL_VERSION_CENTRAL" "$MYSQL_MD5_CENTRAL"; \
-    docker-maven-download central org/postgresql postgresql \
-          "$POSTGRES_VERSION" "$POSTGRES_MD5_CENTRAL"
+          "$MYSQL_VERSION_CENTRAL" "$MYSQL_MD5_CENTRAL"
+
+WORKDIR /kafka/libs
+RUN set -eux; \
+    \
+    curl -sO \
+    https://jdbc.postgresql.org/download/postgresql-$POSTGRES_VERSION.jar
