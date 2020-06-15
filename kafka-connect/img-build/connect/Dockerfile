@@ -115,6 +115,7 @@ RUN set -eux; \
           "$CONNECT_HTTP_VERSION" "$CONNECT_HTTP_MD5"
 
 RUN set -eux; \
+    \
     MAVEN_DEP_DESTINATION=/kafka/libs; \
     docker-maven-download central mysql/mysql-connector-java \
           "$MYSQL_VERSION_CENTRAL" "$MYSQL_MD5_CENTRAL";
