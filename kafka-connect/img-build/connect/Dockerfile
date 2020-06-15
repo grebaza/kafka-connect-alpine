@@ -118,6 +118,6 @@ RUN set -eux; \
     \
     MAVEN_DEP_DESTINATION=/kafka/libs; \
     docker-maven-download central mysql/mysql-connector-java \
-          "$MYSQL_VERSION_CENTRAL" "$MYSQL_MD5_CENTRAL";
+          "$MYSQL_VERSION_CENTRAL" "$MYSQL_MD5_CENTRAL"; \
     docker-maven-download central org/postgresql/postgresql \
           "$POSTGRES_VERSION" "$POSTGRES_MD5_CENTRAL"
