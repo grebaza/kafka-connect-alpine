@@ -96,7 +96,9 @@ ENV DEBEZIUM_VERSION="1.1.1.Final" \
     JDBC_PG_VERSION="42.2.8" \
     JDBC_PG_MD5=e6dcc1898639407bf530b7a34e870b55 \
     JDBC_MYSQL_VERSION="8.0.20" \
-    JDBC_MYSQL_MD5=48d69b9a82cbe275af9e45cb80f6b15f
+    JDBC_MYSQL_MD5=48d69b9a82cbe275af9e45cb80f6b15f \
+    CONNECT_JSON_SCHEMA="jcustenborder/kafka-connect-json-schema" \
+    CONNECT_JSON_SCHEMA_VERSION="0.2.5"
 
 WORKDIR $KAFKA_CONNECT_PLUGINS_DIR
 RUN set -eux; \
@@ -110,6 +112,7 @@ RUN set -eux; \
     docker-maven-download confluent kafka-connect-jdbc "$CONFLUENT_VERSION" "$CONNECT_JDBC_MD5"; \
     \
     docker-chub-download "$CONNECT_TRANSFORMS" "$CONNECT_TRANSFORMS_VERSION"; \
+    docker-chub-download "$CONNECT_JSON_SCHEMA" "$CONNECT_JSON_SCHEMA_VERSION"; \
     docker-maven-download central-plugin com/github/castorm kafka-connect-http \
           "$CONNECT_HTTP_VERSION" "$CONNECT_HTTP_MD5"
 
