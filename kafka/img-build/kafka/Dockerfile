@@ -3,10 +3,10 @@ FROM azul/zulu-openjdk-alpine:11.0.5-jre
 # Set the version, home directory, and MD5 hash.
 # MD5 hash taken from http://kafka.apache.org/downloads.html for this version of Kafka
 #
-ENV KAFKA_VERSION=2.5.0 \
-    SCALA_VERSION=2.12 \
+ENV KAFKA_VERSION=2.6.0 \
+    SCALA_VERSION=2.13 \
     KAFKA_HOME=/kafka \
-    SHA512HASH="447a7057bcd9faca98b6f4807bd6019ef73eee90efdc1e7b10005f669e2537a8a190cb8b9c9f4c20db1d95b13d0f0487e9cc560d0759532058439ce7f722c7cd"
+    SHA512HASH="d884e4df7d85b4fff54ca9cd987811c58506ad7871b9ed7114bbafa6fee2e79f43d04c550eea471f508b08ea34b4316ea1e529996066fd9b93fcf912f41f6165"
 ENV KAFKA_URL_PATH=kafka/$KAFKA_VERSION/kafka_$SCALA_VERSION-$KAFKA_VERSION.tgz
 
 # Create a user and home directory for Kafka

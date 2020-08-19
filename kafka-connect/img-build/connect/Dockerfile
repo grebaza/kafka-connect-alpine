@@ -77,11 +77,13 @@ CMD ["start"]
 # Stage: connect
 FROM connect_base as connect
 
-ENV DEBEZIUM_VERSION="1.1.1.Final" \
+ENV DEBEZIUM_VERSION="1.2.1.Final" \
     MAVEN_REPO_CENTRAL="" \
     MAVEN_REPO_INCUBATOR="" \
     MAVEN_DEP_DESTINATION=$KAFKA_CONNECT_PLUGINS_DIR \
     CHUB_DEP_DESTINATION=$KAFKA_CONNECT_PLUGINS_DIR \
+    DEBEZIUM_DDL_PARSER=fe64e135094f354bf04b1542b1df9501 \
+    DEBEZIUM_CORE=b5ab3c235fe9a457aa31a30e45157053 \
     MONGODB_MD5=0071931fe4e359d4785c473e1117c72c \
     MYSQL_MD5=8930fee8a22b00567f7998819c24f08d \
     POSTGRES_MD5=7c0a9f5f9ce03a1c00200392d5e7f09b \
@@ -105,6 +107,8 @@ ENV DEBEZIUM_VERSION="1.1.1.Final" \
 WORKDIR $KAFKA_CONNECT_PLUGINS_DIR
 RUN set -eux; \
     \
+    docker-maven-download debezium debezium-ddl-parser "$DEBEZIUM_VERSION" "$DEBEZIUM_DDL_PARSER"; \
+    docker-maven-download debezium debezium-core "$DEBEZIUM_VERSION" "$DEBEZIUM_CORE"; \
     docker-maven-download debezium mongodb "$DEBEZIUM_VERSION" "$MONGODB_MD5"; \
     docker-maven-download debezium mysql "$DEBEZIUM_VERSION" "$MYSQL_MD5"; \
     docker-maven-download debezium postgres "$DEBEZIUM_VERSION" "$POSTGRES_MD5"; \
